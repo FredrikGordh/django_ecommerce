@@ -1,0 +1,38 @@
+name: Azure Deployment
+
+on:
+  push:
+    branches:
+      - main  # or the branch you want to deploy from
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'  # specify the version you need
+
+    - name: Install dependencies
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install -r requirements.txt
+
+    - name: Run Django tests
+      run: |
+        source venv/bin/activate
+        python manage.py test
+
+    - name: Deploy to Azure Web App
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: <your-app-name>  # replace with your Azure Web App name
+        slot-name: production
+        publish-profile: ${{ secrets.AZURE_CREDENTIALS }}
+
